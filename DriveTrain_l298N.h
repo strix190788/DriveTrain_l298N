@@ -1,6 +1,6 @@
-class driveTrain {
+class DriveTrain_l298N {
 public:
-  driveTrain(byte in1, byte in2, byte in3, byte in4) {
+  DriveTrain_l298N(byte in1, byte in2, byte in3, byte in4) {
     motor[0][0] = in1;
     motor[0][1] = in2;
     motor[1][0] = in3;
@@ -69,6 +69,5 @@ public:
   }
 
 private:
-  byte _in1, _in2, _in3, _in4;
   byte motor[2][3] = { {0,0,0}, {0,0,0} };
 };
