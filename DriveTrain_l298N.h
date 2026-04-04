@@ -32,8 +32,7 @@ public:
     if (motor[1][2]==1) pwrRight = pwrRight * (-1);
 	
     if (pwrLeft > 0) {
-      
-        digitalWrite(motor[0][0], 0);
+        digitalWrite(motor[0][0], 1);
         analogWrite(motor[0][1], pwrLeft);
       } else {
         digitalWrite(motor[0][1], 0);
@@ -42,7 +41,7 @@ public:
     
     if (pwrRight > 0) {
       
-        digitalWrite(motor[1][0], 0);
+        digitalWrite(motor[1][0], 1);
         analogWrite(motor[1][1], pwrRight);
       } 
 	  else {
@@ -68,6 +67,19 @@ public:
     reverseRightMotor();
   }
 
+  void pMove(int error, int pwr, float kp){
+    int Psost = error * kp;
+    move(pwr - Psost, pwr + Psost);
+  }
+  void pMove(int error, int pwr, float kp , int millsec){
+	pMove(error, pwr, kp);
+    delay(millsec);
+    stop();
+  }
+
 private:
-  byte motor[2][3] = { {0,0,0}, {0,0,0} };
+  byte motor[2][3] = {
+	{0,0,0},
+	{0,0,0} 
+  };
 };
