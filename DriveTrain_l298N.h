@@ -1,85 +1,84 @@
+#include "Arduino.h"
 class DriveTrain_l298N {
 public:
-  DriveTrain_l298N(byte in1, byte in2, byte in3, byte in4) {
-    motor[0][0] = in1;
-    motor[0][1] = in2;
-    motor[1][0] = in3;
-    motor[1][1] = in4;
-    pinMode(motor[0][0], OUTPUT);
-    pinMode(motor[1][0], OUTPUT);
-    pinMode(motor[1][1], OUTPUT);
-    pinMode(motor[0][1], OUTPUT);
-  }
-  void reverseLeftMotor() {
-    motor[0][2] = not motor[0][2];
-  }
-  void reverseRightMotor() {
-    motor[1][2] = not motor[1][2];
+  DriveTrain_l298N(int in1, int in2, int in3, int in4) {
+    _left1 = in1;
+    _left2 = in2;
+    _right1 = in3;
+    _right2 = in4;
+    pinMode(_left1, OUTPUT);
+    pinMode(_left2, OUTPUT);
+    pinMode(_right1, OUTPUT);
+    pinMode(_right2, OUTPUT);
   }
 
   void stop() {
-    digitalWrite(motor[0][0], 0);
-    digitalWrite(motor[0][1], 0);
-	digitalWrite(motor[1][0], 0);
-    digitalWrite(motor[1][1], 0);
+    digitalWrite(_left1, 0);
+    digitalWrite(_left2, 0);
+    digitalWrite(_right1, 0);
+    digitalWrite(_right2, 0);
     delay(50);
   }
 
-  void move(int pwrLeft, int pwrRight) {
-    pwrLeft = constrain(pwrLeft, -255, 255);
-    pwrRight = constrain(pwrRight, -255, 255);
-    if (motor[0][2]==1) pwrLeft = pwrLeft * (-1);
-    if (motor[1][2]==1) pwrRight = pwrRight * (-1);
-	
-    if (pwrLeft > 0) {
-        digitalWrite(motor[0][0], 1);
-        analogWrite(motor[0][1], pwrLeft);
-      } else {
-        digitalWrite(motor[0][1], 0);
-        analogWrite(motor[0][0], abs(pwrLeft));
-      }
-    
-    if (pwrRight > 0) {
-      
-        digitalWrite(motor[1][0], 1);
-        analogWrite(motor[1][1], pwrRight);
-      } 
-	  else {
-        digitalWrite(motor[1][1], 0);
-        analogWrite(motor[1][0], abs(pwrRight));
+  void move(int leftPwr, int rightPwr) {
+    leftPwr = constrain(leftPwr, -255, 255);
+    rightPwr = constrain(rightPwr, -255, 255);
+    if (leftPwr > 0) {
+      digitalWrite(_left2, 0);
+      analogWrite(_left1, leftPwr);
+    } else {
+      digitalWrite(_left1, 0);
+      analogWrite(_left2, abs(leftPwr));
     }
-    
+	
+    if (rightPwr > 0) {
+      digitalWrite(_right2, 0);
+      analogWrite(_right1, rightPwr);
+    } else {
+      digitalWrite(_right1, 0);
+      analogWrite(_right2, abs(rightPwr));
+    }
   }
 
-  void move(byte pwrLeft, byte pwrRight, int millsec) {
-    move(pwrLeft, pwrRight);
+  void move(int leftPwr, int rightPwr, int millsec) {
+    move(leftPwr, rightPwr);
     delay(millsec);
     stop();
   }
-
   void reverse() {
-    for (int i = 0; i < 3; i++) {
-      byte a = motor[0][i];
-      motor[0][i] = motor[1][i];
-      motor[1][i] = a;
-    }
-    reverseLeftMotor();
-    reverseRightMotor();
+    int a = _left1;
+    _left1 = _right1;
+    _right1 = a;
+    a = _left2;
+    _left2 = _right2;
+    _right2 = a;
   }
 
+  void reverseLeftMotor() {
+    int a = _left1;
+    _left1 = _left2;
+    _left2 = a;
+  }
+  void reverseRightMotor() {
+    byte a = _right1;
+    _right1 = _right2;
+    _right2 = a;
+  }
+  void setMaxPwrValue(unsigned int val){
+    _maxPwrValue = val;
+  }
+  
   void pMove(int error, int pwr, float kp){
     int Psost = error * kp;
     move(pwr - Psost, pwr + Psost);
   }
-  void pMove(int error, int pwr, float kp , int millsec){
-	pMove(error, pwr, kp);
-    delay(millsec);
+  void pMove(int error, int pwr, float kp, int millsec){
+	long currentMillis = millis();
+	while (millis() - currentMillis < millsec) pMove(error, pwr, kp);
     stop();
   }
-
+  
 private:
-  byte motor[2][3] = {
-	{0,0,0},
-	{0,0,0} 
-  };
+  int _left1, _left2, _right1, _right2;
+  unsigned int _maxPwrValue = 255;
 };
