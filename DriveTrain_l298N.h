@@ -60,11 +60,11 @@ public:
     _left2 = a;
   }
   void reverseRightMotor() {
-    byte a = _right1;
+    int a = _right1;
     _right1 = _right2;
     _right2 = a;
   }
-  void setMaxPwrValue(unsigned int val){
+  void setMaxPwrValue(int val){
     _maxPwrValue = val;
   }
   
@@ -80,5 +80,5 @@ public:
   
 private:
   int _left1, _left2, _right1, _right2;
-  unsigned int _maxPwrValue = 255;
+  int _maxPwrValue = 255;
 };
